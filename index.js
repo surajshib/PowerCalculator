@@ -20,7 +20,7 @@ app.get("/", async (req, res) => {
     if (!campaignId || !sender) res.send({ data: 0, error: "No parameters" });
     else {
       const votingPower = await calculateVotingPower(campaignId, sender);
-      res.send({ data: votingPower });
+      res.send({ data: 10, votingPower });
     }
   } catch (e) {
     console.log(`Error caught: `, e);
