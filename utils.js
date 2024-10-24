@@ -29,10 +29,10 @@ const tokenContract = new ethers.Contract(
 );
 
 // omega = marketcap / sum of marketcaps of all coins
-async function calculateOmega(campaignId, coinId) {
+async function calculateOmega(proposalId, coinId) {
   let omega = 0;
 
-  const details = await votingContract.getCampaignDetails(campaignId);
+  const details = await votingContract.getProposalDetails(proposalId);
   const coinsLength = details[5].length;
 
   for (let i = 0; i < coinsLength; i++) {
@@ -47,12 +47,12 @@ async function calculateOmega(campaignId, coinId) {
 // for our calculations we will remove the divisibility factor because it will result in fractional values
 async function calculateRho(
   staked,
-  campaignId,
+  proposalId,
   coinId, // TODO: currently only 1 coin is supported so it will be 0
   sender
 ) {
   let rho;
-  const details = await votingContract.getCampaignDetails(campaignId);
+  const details = await votingContract.getProposalDetails(proposalId);
 
   if (staked) {
     const stakes = await shibStakingContract.stakes(sender);
@@ -67,11 +67,11 @@ async function calculateRho(
 // Co-relation factor = rho * (e ** (-pi/3*rho))
 async function calculateCoRelationFactor(
   staked,
-  campaignId,
+  proposalId,
   coinId, // TODO: currently only 1 coin is supported so it will be 0
   sender
 ) {
-  const rho = await calculateRho(staked, campaignId, coinId, sender);
+  const rho = await calculateRho(staked, proposalId, coinId, sender);
 
   const exp = (3.14157 / 3) * rho;
 
@@ -80,24 +80,24 @@ async function calculateCoRelationFactor(
   return corFactor;
 }
 
-async function calculateVotingPower(campaignId, sender) {
-  const details = await votingContract.getCampaignDetails(campaignId);
+async function calculateVotingPower(proposalId, sender) {
+  const details = await votingContract.getProposalDetails(proposalId);
 
   const coinsLength = details[5].length;
   let power = 0;
 
   for (let coinId = 0; coinId < coinsLength; coinId++) {
-    const omega = await calculateOmega(campaignId, coinId);
+    const omega = await calculateOmega(proposalId, coinId);
 
     const stakedVal = await calculateCoRelationFactor(
       true,
-      campaignId,
+      proposalId,
       coinId,
       sender
     );
     const unStakedVal = await calculateCoRelationFactor(
       false,
-      campaignId,
+      proposalId,
       coinId,
       sender
     );
