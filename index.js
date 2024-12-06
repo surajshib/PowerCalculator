@@ -21,7 +21,8 @@ app.get("/", async (req, res) => {
 
     if (!proposalId || !sender) res.send({ data: 0, error: "No parameters" });
     else {
-      const votingPower = await calculateVotingPower(proposalId, sender);
+      // const votingPower = await calculateVotingPower(proposalId, sender);
+      const votingPower = 24535
       res.send({ data: votingPower, testData: 10 });
     }
   } catch (e) {
